@@ -7,31 +7,41 @@ chrome.action.onClicked.addListener(async (tab) => {
     const response = await fetch(jinaUrl);
     const content = await response.text();
 
-    // Copy the markdown content to clipboard via content script
+    // Execute script in the active tab to copy text and show notification
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (textToCopy) => {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          // Create and show notification
-          const notification = document.createElement('div');
-          notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 16px;
-            border-radius: 4px;
-            z-index: 9999;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          `;
-          notification.textContent = 'Markdown content copied to clipboard';
-          document.body.appendChild(notification);
+      func: async (textToCopy) => {
+        // Create a temporary textarea element
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        
+        // Select and copy the text
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
 
-          setTimeout(() => {
-            notification.remove();
-          }, 3000);
-        });
+        // Show notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #4CAF50;
+          color: white;
+          padding: 16px;
+          border-radius: 4px;
+          z-index: 9999;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        `;
+        notification.textContent = 'Markdown content copied to clipboard';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
       },
       args: [content]
     });
