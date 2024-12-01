@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Page2MD",
+  "version": "1.0",
+  "description": "Convert web pages to LLM-friendly markdown format using r.jina.ai",
+  "permissions": ["activeTab", "clipboardWrite", "scripting"],
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  }
+}
